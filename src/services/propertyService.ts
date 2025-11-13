@@ -8,8 +8,8 @@ export type Property = {
 };
 
 const demo: Property[] = [
-  { id: "1", title: "Appartement centre ville", price: 6500, location: "Casablanca", type: 'rent', imageUrl: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200' },
-  { id: "2", title: "Villa avec jardin", price: 15000, location: "Rabat", type: 'sale', imageUrl: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1200' },
+  { id: "1", title: "Appartement centre ville", price: 6500, location: "Tozeur", type: 'rent', imageUrl: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200' },
+  { id: "2", title: "Villa avec jardin", price: 15000, location: "Monastir", type: 'sale', imageUrl: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1200' },
 ];
 
 export async function listProperties() {
