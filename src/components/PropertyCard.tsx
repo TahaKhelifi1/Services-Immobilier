@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Property } from '../types';
+import { useTheme } from '../context/ThemeContext';
+import { getColors } from '../constants/colors';
 
 interface PropertyCardProps {
   property: Property;
@@ -16,8 +18,11 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   onFavorite,
   isFavorite = false,
 }) => {
+  const { isDarkMode } = useTheme();
+  const colors = getColors(isDarkMode);
+  
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
+    <TouchableOpacity style={[styles.card, { backgroundColor: colors.card }]} onPress={onPress}>
       <View style={styles.imageContainer}>
         <Image
           source={{ uri: property.images[0] || 'https://via.placeholder.com/300' }}
@@ -45,29 +50,29 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={1}>
+        <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
           {property.title}
         </Text>
         
         <View style={styles.locationRow}>
-          <Ionicons name="location-outline" size={16} color="#666" />
-          <Text style={styles.location} numberOfLines={1}>
+          <Ionicons name="location-outline" size={16} color={colors.textLight} />
+          <Text style={[styles.location, { color: colors.textLight }]} numberOfLines={1}>
             {property.location.address}, {property.location.city}
           </Text>
         </View>
 
         <View style={styles.featuresRow}>
           <View style={styles.feature}>
-            <Ionicons name="bed-outline" size={16} color="#666" />
-            <Text style={styles.featureText}>{property.bedrooms}</Text>
+            <Ionicons name="bed-outline" size={16} color={colors.textLight} />
+            <Text style={[styles.featureText, { color: colors.textLight }]}>{property.bedrooms}</Text>
           </View>
           <View style={styles.feature}>
-            <Ionicons name="water-outline" size={16} color="#666" />
-            <Text style={styles.featureText}>{property.bathrooms}</Text>
+            <Ionicons name="water-outline" size={16} color={colors.textLight} />
+            <Text style={[styles.featureText, { color: colors.textLight }]}>{property.bathrooms}</Text>
           </View>
           <View style={styles.feature}>
-            <Ionicons name="expand-outline" size={16} color="#666" />
-            <Text style={styles.featureText}>{property.area} m²</Text>
+            <Ionicons name="expand-outline" size={16} color={colors.textLight} />
+            <Text style={[styles.featureText, { color: colors.textLight }]}>{property.area} m²</Text>
           </View>
         </View>
 
@@ -75,7 +80,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           <Text style={styles.price}>
             {property.price.toLocaleString('fr-FR')} DH
             {property.rentType && (
-              <Text style={styles.rentType}> /{property.rentType}</Text>
+              <Text style={[styles.rentType, { color: colors.textLight }]}> /{property.rentType}</Text>
             )}
           </Text>
           <View style={styles.statusTag}>

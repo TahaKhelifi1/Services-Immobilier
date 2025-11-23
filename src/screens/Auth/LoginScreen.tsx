@@ -10,18 +10,20 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS, SIZES, SHADOWS } from '../../constants/theme';
+import { COLORS, SIZES, SHADOWS, SPACING } from '../../constants/theme';
 
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, resetPassword } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -39,12 +41,43 @@ const LoginScreen = ({ navigation }: any) => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      Alert.alert(
+        'Email requis',
+        'Veuillez entrer votre adresse email pour réinitialiser votre mot de passe.'
+      );
+      return;
+    }
+
+    try {
+      await resetPassword(email);
+      Alert.alert(
+        'Email envoyé',
+        'Un email de réinitialisation a été envoyé à votre adresse. Vérifiez votre boîte de réception.'
+      );
+    } catch (error: any) {
+      let errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'Aucun compte associé à cet email.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Adresse email invalide.';
+      }
+      
+      Alert.alert('Erreur', errorMessage);
+    }
+  };
+
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.gradient1} />
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <LinearGradient
           colors={[COLORS.gradient1, COLORS.gradient2]}
           style={styles.header}
@@ -90,7 +123,7 @@ const LoginScreen = ({ navigation }: any) => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.forgotPassword}>
+          <TouchableOpacity style={styles.forgotPassword} onPress={handleForgotPassword}>
             <Text style={styles.forgotPasswordText}>Mot de passe oublié?</Text>
           </TouchableOpacity>
 
@@ -113,8 +146,9 @@ const LoginScreen = ({ navigation }: any) => {
             </TouchableOpacity>
           </View>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -123,11 +157,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
+  flex: {
+    flex: 1,
+  },
   scrollContent: {
     flexGrow: 1,
   },
   header: {
-    paddingTop: 60,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: 40,
     alignItems: 'center',
     borderBottomLeftRadius: 30,
@@ -166,18 +203,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: COLORS.white,
     borderRadius: SIZES.radius,
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    paddingHorizontal: SPACING.lg,
+    marginBottom: SPACING.lg,
+    minHeight: 50,
     ...SHADOWS.small,
   },
   inputIcon: {
-    marginRight: 12,
+    marginRight: SPACING.md,
   },
   input: {
     flex: 1,
-    height: 50,
     fontSize: 16,
     color: COLORS.text,
+    paddingVertical: Platform.OS === 'ios' ? 15 : 12,
   },
   forgotPassword: {
     alignSelf: 'flex-end',

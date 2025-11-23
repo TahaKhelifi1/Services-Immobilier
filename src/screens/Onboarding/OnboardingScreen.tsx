@@ -8,7 +8,9 @@ import {
   TouchableOpacity,
   Image,
   StatusBar,
+  ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -170,12 +172,11 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onGetStarted }) => 
   }, []);
 
   useEffect(() => {
-    // Animation du logo
+    // Animation du logo - simple fade in, pas de scale
     Animated.parallel([
-      Animated.spring(logoScale, {
+      Animated.timing(logoScale, {
         toValue: 1,
-        tension: 50,
-        friction: 7,
+        duration: 600,
         useNativeDriver: true,
       }),
       Animated.timing(logoRotate, {
@@ -210,22 +211,6 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onGetStarted }) => 
       useNativeDriver: true,
     }).start();
 
-    // Animation pulsante du logo
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(logoScale, {
-          toValue: 1.05,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(logoScale, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
     // Rotation des features
     const interval = setInterval(() => {
       setCurrentFeature((prev) => (prev + 1) % 3);
@@ -246,7 +231,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onGetStarted }) => 
   });
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <LinearGradient
         colors={['#667EEA', '#764BA2', '#F093FB']}
@@ -255,29 +240,25 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onGetStarted }) => 
         style={styles.gradient}
       >
         {/* Floating homes background */}
-        {floatingHomes.map((home) => (
-          <FloatingHome
-            key={home.id}
-            image={home.image}
-            delay={home.delay}
-            left={home.left}
-            top={home.top}
-            scale={home.scale}
-          />
-        ))}
-
-        {/* Overlay gradient animé */}
-        <LinearGradient
-          colors={[
-            'rgba(102, 126, 234, 0.6)',
-            'rgba(118, 75, 162, 0.5)',
-            'rgba(240, 147, 251, 0.4)',
-          ]}
-          style={styles.overlay}
-        />
+        <View style={styles.backgroundContainer} pointerEvents="none">
+          {floatingHomes.map((home) => (
+            <FloatingHome
+              key={home.id}
+              image={home.image}
+              delay={home.delay}
+              left={home.left}
+              top={home.top}
+              scale={home.scale}
+            />
+          ))}
+        </View>
 
         {/* Main content */}
-        <View style={styles.content}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
           {/* Logo animé */}
           <Animated.View
             style={[
@@ -298,7 +279,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onGetStarted }) => 
                 colors={['#FFFFFF', '#F0F9FF']}
                 style={styles.logoCircle}
               >
-                <Ionicons name="home" size={68} color="#667EEA" />
+                <Ionicons name="home" size={50} color="#667EEA" />
               </LinearGradient>
             </View>
             <LinearGradient
@@ -380,9 +361,9 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onGetStarted }) => 
               </View>
             ))}
           </View>
-        </View>
+        </ScrollView>
       </LinearGradient>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -391,6 +372,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   gradient: {
+    flex: 1,
+  },
+  scrollView: {
     flex: 1,
   },
   floatingHome: {
@@ -414,20 +398,24 @@ const styles = StyleSheet.create({
   imageOverlay: {
     ...StyleSheet.absoluteFillObject,
   },
+  backgroundContainer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 0,
+  },
   overlay: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 1,
   },
   content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexGrow: 1,
     paddingHorizontal: 24,
+    paddingBottom: 40,
     zIndex: 2,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 48,
+    marginTop: 20,
+    marginBottom: 30,
   },
   logoWrapper: {
     position: 'relative',
@@ -444,13 +432,13 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.3 }],
   },
   logoCircle: {
-    borderRadius: 40,
-    padding: 28,
+    borderRadius: 32,
+    padding: 20,
     shadowColor: '#667EEA',
-    shadowOffset: { width: 0, height: 12 },
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 20,
+    shadowRadius: 16,
+    elevation: 16,
   },
   appNameGradient: {
     marginTop: 20,
@@ -459,7 +447,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   appName: {
-    fontSize: 42,
+    fontSize: 32,
     fontWeight: '900',
     color: '#667EEA',
     letterSpacing: 1,
@@ -476,17 +464,17 @@ const styles = StyleSheet.create({
     elevation: 20,
   },
   cardGradient: {
-    padding: 36,
+    padding: 24,
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.6)',
-    borderRadius: 32,
+    borderRadius: 28,
   },
   titleContainer: {
     alignItems: 'center',
     marginBottom: 20,
   },
   title: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: '900',
     color: '#1F2937',
     textAlign: 'center',
@@ -499,10 +487,10 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   description: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#4B5563',
-    lineHeight: 26,
-    marginBottom: 28,
+    lineHeight: 24,
+    marginBottom: 24,
     textAlign: 'center',
     fontWeight: '400',
   },
@@ -530,11 +518,11 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   features: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    marginTop: 36,
-    gap: 12,
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: 24,
+    gap: 10,
+    width: '100%',
   },
   feature: {
     flexDirection: 'row',
@@ -551,6 +539,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 6,
+    width: '80%',
+    maxWidth: 300,
   },
   featureActive: {
     backgroundColor: 'rgba(255, 255, 255, 0.98)',

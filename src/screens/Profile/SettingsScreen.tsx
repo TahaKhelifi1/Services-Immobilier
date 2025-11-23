@@ -7,14 +7,39 @@ import {
   TouchableOpacity,
   Switch,
   Alert,
+  Modal,
+  Pressable,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SIZES, SHADOWS } from '../../constants/theme';
+import { COLORS, SIZES, SHADOWS, SPACING } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const SettingsScreen = ({ navigation }: any) => {
-  const [darkMode, setDarkMode] = useState(false);
+  const { isDarkMode, toggleDarkMode, language, setLanguage, t } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [locationServices, setLocationServices] = useState(true);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+
+  const colors = isDarkMode ? {
+    background: '#121212',
+    card: '#1E1E1E',
+    text: '#FFFFFF',
+    textLight: '#B0B0B0',
+    border: '#333333',
+  } : {
+    background: COLORS.background,
+    card: COLORS.white,
+    text: COLORS.text,
+    textLight: COLORS.textLight,
+    border: COLORS.border,
+  };
+
+  const languageOptions = [
+    { code: 'fr', name: 'Français', flag: '🇫🇷' },
+    { code: 'en', name: 'English', flag: '🇬🇧' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+  ];
 
   const handleDeleteAccount = () => {
     Alert.alert(
@@ -34,80 +59,85 @@ const SettingsScreen = ({ navigation }: any) => {
     );
   };
 
+  const getCurrentLanguageName = () => {
+    const current = languageOptions.find(l => l.code === language);
+    return current ? `${current.flag} ${current.name}` : 'Français';
+  };
+
   const settingsSections = [
     {
-      title: 'Préférences',
+      title: t('preferences'),
       items: [
         {
           icon: 'moon-outline',
-          title: 'Mode sombre',
+          title: t('darkMode'),
           type: 'switch',
-          value: darkMode,
-          onValueChange: setDarkMode,
+          value: isDarkMode,
+          onValueChange: toggleDarkMode,
         },
         {
           icon: 'language-outline',
-          title: 'Langue',
+          title: t('language'),
           type: 'navigation',
-          value: 'Français',
-          onPress: () => Alert.alert('Info', 'Changement de langue bientôt disponible'),
+          value: getCurrentLanguageName(),
+          onPress: () => setShowLanguageModal(true),
         },
       ],
     },
     {
-      title: 'Confidentialité',
+      title: t('privacy'),
       items: [
         {
           icon: 'notifications-outline',
-          title: 'Notifications',
+          title: t('notifications'),
           type: 'switch',
           value: notifications,
           onValueChange: setNotifications,
         },
         {
           icon: 'location-outline',
-          title: 'Services de localisation',
+          title: t('locationServices'),
           type: 'switch',
           value: locationServices,
           onValueChange: setLocationServices,
         },
         {
           icon: 'shield-checkmark-outline',
-          title: 'Confidentialité',
+          title: t('privacy'),
           type: 'navigation',
           onPress: () => Alert.alert('Info', 'Paramètres de confidentialité'),
         },
       ],
     },
     {
-      title: 'Sécurité',
+      title: t('security'),
       items: [
         {
           icon: 'lock-closed-outline',
-          title: 'Changer le mot de passe',
+          title: t('changePassword'),
           type: 'navigation',
-          onPress: () => Alert.alert('Info', 'Changement de mot de passe bientôt disponible'),
+          onPress: () => navigation.navigate('ChangePassword'),
         },
         {
           icon: 'finger-print-outline',
-          title: 'Authentification biométrique',
+          title: t('biometricAuth'),
           type: 'navigation',
           onPress: () => Alert.alert('Info', 'Fonction bientôt disponible'),
         },
       ],
     },
     {
-      title: 'Données',
+      title: t('data'),
       items: [
         {
           icon: 'cloud-download-outline',
-          title: 'Télécharger mes données',
+          title: t('downloadData'),
           type: 'navigation',
           onPress: () => Alert.alert('Info', 'Téléchargement des données en cours...'),
         },
         {
           icon: 'trash-outline',
-          title: 'Vider le cache',
+          title: t('clearCache'),
           type: 'navigation',
           onPress: () => Alert.alert('Succès', 'Cache vidé avec succès'),
         },
@@ -118,17 +148,17 @@ const SettingsScreen = ({ navigation }: any) => {
   const renderSettingItem = (item: any, index: number) => {
     if (item.type === 'switch') {
       return (
-        <View key={index} style={styles.settingItem}>
+        <View key={index} style={[styles.settingItem, { borderBottomColor: colors.border }]}>
           <View style={styles.settingLeft}>
-            <View style={styles.iconContainer}>
+            <View style={[styles.iconContainer, { backgroundColor: isDarkMode ? '#2A2A2A' : COLORS.background }]}>
               <Ionicons name={item.icon as any} size={24} color={COLORS.primary} />
             </View>
-            <Text style={styles.settingText}>{item.title}</Text>
+            <Text style={[styles.settingText, { color: colors.text }]}>{item.title}</Text>
           </View>
           <Switch
             value={item.value}
             onValueChange={item.onValueChange}
-            trackColor={{ false: COLORS.border, true: COLORS.primary }}
+            trackColor={{ false: colors.border, true: COLORS.primary }}
           />
         </View>
       );
@@ -137,40 +167,40 @@ const SettingsScreen = ({ navigation }: any) => {
     return (
       <TouchableOpacity
         key={index}
-        style={styles.settingItem}
+        style={[styles.settingItem, { borderBottomColor: colors.border }]}
         onPress={item.onPress}
       >
         <View style={styles.settingLeft}>
-          <View style={styles.iconContainer}>
+          <View style={[styles.iconContainer, { backgroundColor: isDarkMode ? '#2A2A2A' : COLORS.background }]}>
             <Ionicons name={item.icon as any} size={24} color={COLORS.primary} />
           </View>
           <View>
-            <Text style={styles.settingText}>{item.title}</Text>
+            <Text style={[styles.settingText, { color: colors.text }]}>{item.title}</Text>
             {item.value && (
-              <Text style={styles.settingValue}>{item.value}</Text>
+              <Text style={[styles.settingValue, { color: colors.textLight }]}>{item.value}</Text>
             )}
           </View>
         </View>
-        <Ionicons name="chevron-forward" size={24} color={COLORS.textLight} />
+        <Ionicons name="chevron-forward" size={24} color={colors.textLight} />
       </TouchableOpacity>
     );
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.card }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Paramètres</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('settings')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {settingsSections.map((section, sectionIndex) => (
           <View key={sectionIndex} style={styles.section}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-            <View style={styles.sectionContent}>
+            <Text style={[styles.sectionTitle, { color: colors.textLight }]}>{section.title}</Text>
+            <View style={[styles.sectionContent, { backgroundColor: colors.card }]}>
               {section.items.map((item, itemIndex) =>
                 renderSettingItem(item, itemIndex)
               )}
@@ -179,21 +209,57 @@ const SettingsScreen = ({ navigation }: any) => {
         ))}
 
         <TouchableOpacity
-          style={styles.dangerButton}
+          style={[styles.dangerButton, { backgroundColor: colors.card }]}
           onPress={handleDeleteAccount}
         >
           <Ionicons name="warning-outline" size={24} color={COLORS.accent} />
-          <Text style={styles.dangerButtonText}>Supprimer mon compte</Text>
+          <Text style={styles.dangerButtonText}>{t('deleteAccount')}</Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+
+      {/* Language Selection Modal */}
+      <Modal
+        visible={showLanguageModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowLanguageModal(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setShowLanguageModal(false)}
+        >
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>{t('language')}</Text>
+            {languageOptions.map((lang) => (
+              <TouchableOpacity
+                key={lang.code}
+                style={[
+                  styles.languageOption,
+                  { borderColor: colors.border },
+                  language === lang.code && styles.languageOptionActive,
+                ]}
+                onPress={() => {
+                  setLanguage(lang.code as any);
+                  setShowLanguageModal(false);
+                }}
+              >
+                <Text style={styles.languageFlag}>{lang.flag}</Text>
+                <Text style={[styles.languageName, { color: colors.text }]}>{lang.name}</Text>
+                {language === lang.code && (
+                  <Ionicons name="checkmark-circle" size={24} color={COLORS.primary} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Pressable>
+      </Modal>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   header: {
     flexDirection: 'row',
@@ -278,6 +344,44 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 24,
     marginBottom: 40,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: SPACING.xl,
+    paddingBottom: 40,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: SPACING.lg,
+    textAlign: 'center',
+  },
+  languageOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.lg,
+    borderRadius: SIZES.radius,
+    borderWidth: 1,
+    marginBottom: SPACING.sm,
+    gap: SPACING.md,
+  },
+  languageOptionActive: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primary + '10',
+  },
+  languageFlag: {
+    fontSize: 28,
+  },
+  languageName: {
+    fontSize: 18,
+    fontWeight: '500',
+    flex: 1,
   },
 });
 

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../constants/theme';
+import { COLORS, SPACING } from '../constants/theme';
 import { Property } from '../types';
 
 // Screens
@@ -22,6 +23,7 @@ import EditProfileScreen from '../screens/Profile/EditProfileScreen';
 import MyPropertiesScreen from '../screens/Profile/MyPropertiesScreen';
 import NotificationsScreen from '../screens/Profile/NotificationsScreen';
 import SettingsScreen from '../screens/Profile/SettingsScreen';
+import ChangePasswordScreen from '../screens/Profile/ChangePasswordScreen';
 import HelpScreen from '../screens/Profile/HelpScreen';
 import AboutScreen from '../screens/Profile/AboutScreen';
 import MapViewScreen from '../screens/Map/MapViewScreen';
@@ -41,6 +43,7 @@ export type RootStackParamList = {
   MyProperties: undefined;
   Notifications: undefined;
   Settings: undefined;
+  ChangePassword: undefined;
   Help: undefined;
   About: undefined;
   AddProperty: { propertyToEdit?: Property };
@@ -80,9 +83,12 @@ const TabNavigator = () => {
         tabBarInactiveTintColor: COLORS.textLight,
         headerShown: false,
         tabBarStyle: {
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 60,
+          paddingBottom: Platform.OS === 'ios' ? SPACING.xl + 10 : SPACING.md,
+          paddingTop: SPACING.md,
+          height: Platform.OS === 'ios' ? 85 : 65,
+          backgroundColor: COLORS.white,
+          borderTopWidth: 1,
+          borderTopColor: COLORS.border,
         },
       })}
     >
@@ -158,6 +164,7 @@ const Navigation = () => {
             <Stack.Screen name="MyProperties" component={MyPropertiesScreen} />
             <Stack.Screen name="Notifications" component={NotificationsScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
+            <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
             <Stack.Screen name="Help" component={HelpScreen} />
             <Stack.Screen name="About" component={AboutScreen} />
           </>

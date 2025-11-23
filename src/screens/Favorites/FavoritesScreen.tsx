@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Alert, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase';
@@ -7,8 +8,12 @@ import { useAuth } from '../../context/AuthContext';
 import { useFavorites } from '../../hooks/useProperties';
 import { Property } from '../../types';
 import { COLORS, SIZES, SHADOWS } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
+import { getColors } from '../../constants/colors';
 
 const FavoritesScreen = ({ navigation }: any) => {
+  const { isDarkMode } = useTheme();
+  const colors = getColors(isDarkMode);
   const { user } = useAuth();
   const { toggleFavorite } = useFavorites(user?.id || '');
   const [favorites, setFavorites] = useState<Property[]>([]);
@@ -74,7 +79,7 @@ const FavoritesScreen = ({ navigation }: any) => {
 
   const renderFavoriteItem = ({ item }: { item: Property }) => (
     <TouchableOpacity
-      style={styles.propertyCard}
+      style={[styles.propertyCard, { backgroundColor: colors.card }]}
       onPress={() => navigation.navigate('PropertyDetails', { property: item })}
     >
       <Image
@@ -82,26 +87,26 @@ const FavoritesScreen = ({ navigation }: any) => {
         style={styles.image}
       />
       <View style={styles.info}>
-        <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
+        <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>{item.title}</Text>
         <View style={styles.locationRow}>
-          <Ionicons name="location-outline" size={16} color={COLORS.textLight} />
-          <Text style={styles.location}>{item.location.city}</Text>
+          <Ionicons name="location-outline" size={16} color={colors.textLight} />
+          <Text style={[styles.location, { color: colors.textLight }]}>{item.location.city}</Text>
         </View>
         <View style={styles.features}>
           <View style={styles.feature}>
             <Ionicons name="bed-outline" size={16} color={COLORS.primary} />
-            <Text style={styles.featureText}>{item.bedrooms}</Text>
+            <Text style={[styles.featureText, { color: colors.text }]}>{item.bedrooms}</Text>
           </View>
           <View style={styles.feature}>
             <Ionicons name="water-outline" size={16} color={COLORS.primary} />
-            <Text style={styles.featureText}>{item.bathrooms}</Text>
+            <Text style={[styles.featureText, { color: colors.text }]}>{item.bathrooms}</Text>
           </View>
           <View style={styles.feature}>
             <Ionicons name="expand-outline" size={16} color={COLORS.primary} />
-            <Text style={styles.featureText}>{item.area}m²</Text>
+            <Text style={[styles.featureText, { color: colors.text }]}>{item.area}m²</Text>
           </View>
         </View>
-        <Text style={styles.price}>{item.price.toLocaleString()} €</Text>
+        <Text style={[styles.price, { color: COLORS.primary }]}>{item.price.toLocaleString()} €</Text>
       </View>
       <TouchableOpacity 
         style={styles.favoriteButton}
@@ -113,17 +118,18 @@ const FavoritesScreen = ({ navigation }: any) => {
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Mes Favoris</Text>
-        <Text style={styles.count}>{favorites.length} propriétés</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.background} />
+      <View style={[styles.header, { backgroundColor: colors.card }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Mes Favoris</Text>
+        <Text style={[styles.count, { color: colors.textLight }]}>{favorites.length} propriétés</Text>
       </View>
 
       {favorites.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Ionicons name="heart-outline" size={80} color={COLORS.textLight} />
-          <Text style={styles.emptyTitle}>Aucun favori</Text>
-          <Text style={styles.emptyText}>
+          <Ionicons name="heart-outline" size={80} color={colors.textLight} />
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>Aucun favori</Text>
+          <Text style={[styles.emptyText, { color: colors.textLight }]}>
             Commencez à ajouter des propriétés à vos favoris
           </Text>
         </View>
@@ -136,7 +142,7 @@ const FavoritesScreen = ({ navigation }: any) => {
           showsVerticalScrollIndicator={false}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -146,8 +152,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
-    paddingTop: 50,
-    paddingBottom: 16,
+    paddingVertical: 16,
     paddingHorizontal: SIZES.padding,
     backgroundColor: COLORS.white,
     ...SHADOWS.small,

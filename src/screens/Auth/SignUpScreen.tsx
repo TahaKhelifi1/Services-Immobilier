@@ -10,11 +10,13 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS, SIZES, SHADOWS } from '../../constants/theme';
+import { COLORS, SIZES, SHADOWS, SPACING } from '../../constants/theme';
 
 const SignUpScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
@@ -52,11 +54,14 @@ const SignUpScreen = ({ navigation }: any) => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.gradient1} />
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <LinearGradient
           colors={[COLORS.gradient1, COLORS.gradient2]}
           style={styles.header}
@@ -149,8 +154,9 @@ const SignUpScreen = ({ navigation }: any) => {
             </TouchableOpacity>
           </View>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -159,11 +165,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
+  flex: {
+    flex: 1,
+  },
   scrollContent: {
     flexGrow: 1,
   },
   header: {
-    paddingTop: 60,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: 40,
     alignItems: 'center',
     borderBottomLeftRadius: 30,
@@ -172,11 +181,12 @@ const styles = StyleSheet.create({
   backButton: {
     position: 'absolute',
     left: 20,
-    top: 50,
+    top: Platform.OS === 'ios' ? 50 : 30,
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 20,
   },
   title: {
     fontSize: 28,
@@ -205,18 +215,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: COLORS.white,
     borderRadius: SIZES.radius,
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    paddingHorizontal: SPACING.lg,
+    marginBottom: SPACING.lg,
+    minHeight: 50,
     ...SHADOWS.small,
   },
   inputIcon: {
-    marginRight: 12,
+    marginRight: SPACING.md,
   },
   input: {
     flex: 1,
-    height: 50,
     fontSize: 16,
     color: COLORS.text,
+    paddingVertical: Platform.OS === 'ios' ? 15 : 12,
   },
   signupButton: {
     backgroundColor: COLORS.primary,

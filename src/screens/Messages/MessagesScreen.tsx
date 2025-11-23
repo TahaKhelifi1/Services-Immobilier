@@ -7,16 +7,23 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Platform,
+  StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../context/AuthContext';
 import { Conversation } from '../../types';
-import { COLORS, SIZES, SHADOWS } from '../../constants/theme';
+import { COLORS, SIZES, SHADOWS, SPACING } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
+import { getColors } from '../../constants/colors';
 import { markConversationAsRead } from '../../services/firebase.service';
 
 const MessagesScreen = ({ navigation }: any) => {
+  const { isDarkMode } = useTheme();
+  const colors = getColors(isDarkMode);
   const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,7 +80,7 @@ const MessagesScreen = ({ navigation }: any) => {
 
     return (
       <TouchableOpacity
-        style={styles.conversationCard}
+        style={[styles.conversationCard, { backgroundColor: colors.card, borderBottomColor: colors.border }]}
         onPress={async () => {
           if (hasUnread && user) {
             await markConversationAsRead(item.id, user.id);
@@ -97,14 +104,14 @@ const MessagesScreen = ({ navigation }: any) => {
         )}
         <View style={styles.conversationInfo}>
           <View style={styles.conversationHeader}>
-            <Text style={[styles.propertyTitle, hasUnread && styles.unreadTitle]} numberOfLines={1}>
+            <Text style={[styles.propertyTitle, { color: colors.text }, hasUnread && styles.unreadTitle]} numberOfLines={1}>
               {item.propertyTitle || 'Conversation'}
             </Text>
-            <Text style={styles.time}>
+            <Text style={[styles.time, { color: colors.textLight }]}>
               {formatTime(item.lastMessageTime)}
             </Text>
           </View>
-          <Text style={[styles.lastMessage, hasUnread && styles.unreadMessage]} numberOfLines={1}>
+          <Text style={[styles.lastMessage, { color: colors.textLight }, hasUnread && styles.unreadMessage]} numberOfLines={1}>
             {item.lastMessage || 'Commencer la conversation'}
           </Text>
         </View>
@@ -113,12 +120,13 @@ const MessagesScreen = ({ navigation }: any) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.background} />
+      <View style={[styles.header, { backgroundColor: colors.card }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Messages</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Messages</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -128,8 +136,8 @@ const MessagesScreen = ({ navigation }: any) => {
         </View>
       ) : conversations.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Ionicons name="chatbubbles-outline" size={80} color={COLORS.textLight} />
-          <Text style={styles.emptyTitle}>Aucun message</Text>
+          <Ionicons name="chatbubbles-outline" size={80} color={colors.textLight} />
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>Aucun message</Text>
           <Text style={styles.emptyText}>
             Commencez une conversation avec un propriétaire
           </Text>
@@ -142,7 +150,7 @@ const MessagesScreen = ({ navigation }: any) => {
           showsVerticalScrollIndicator={false}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -155,9 +163,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SIZES.padding,
-    paddingTop: 50,
-    paddingBottom: 16,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.lg,
     backgroundColor: COLORS.white,
     ...SHADOWS.small,
   },
@@ -174,10 +181,11 @@ const styles = StyleSheet.create({
   },
   conversationCard: {
     flexDirection: 'row',
-    padding: SIZES.padding,
+    padding: SPACING.lg,
     backgroundColor: COLORS.white,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
+    minHeight: 80,
   },
   avatar: {
     width: 60,

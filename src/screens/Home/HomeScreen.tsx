@@ -9,20 +9,27 @@ import {
   Image,
   FlatList,
   Dimensions,
+  StatusBar,
+  Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { collection, query, orderBy, limit, getDocs, where } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { Property } from '../../types';
-import { COLORS, SIZES, SHADOWS } from '../../constants/theme';
+import { COLORS, SIZES, SHADOWS, SPACING } from '../../constants/theme';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
+import { getColors } from '../../constants/colors';
 import { useFavorites } from '../../hooks/useProperties';
 
 const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }: any) => {
   const { user } = useAuth();
+  const { isDarkMode } = useTheme();
+  const colors = getColors(isDarkMode);
   const { toggleFavorite, isFavorite } = useFavorites(user?.id || '');
   const [properties, setProperties] = useState<Property[]>([]);
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
@@ -149,7 +156,8 @@ const HomeScreen = ({ navigation }: any) => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
       <LinearGradient
         colors={[COLORS.gradient1, COLORS.gradient2]}
         style={styles.header}
@@ -166,7 +174,7 @@ const HomeScreen = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.searchContainer}>
+        <View style={[styles.searchContainer, { backgroundColor: colors.card }]}>
           <Ionicons name="search-outline" size={20} color={COLORS.textLight} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
@@ -187,29 +195,29 @@ const HomeScreen = ({ navigation }: any) => {
         </View>
       </LinearGradient>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={[styles.content, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
         <View style={styles.filterContainer}>
           <TouchableOpacity
-            style={[styles.filterButton, selectedType === 'all' && styles.filterButtonActive]}
+            style={[styles.filterButton, { backgroundColor: colors.card, borderColor: colors.border }, selectedType === 'all' && styles.filterButtonActive]}
             onPress={() => setSelectedType('all')}
           >
-            <Text style={[styles.filterText, selectedType === 'all' && styles.filterTextActive]}>
+            <Text style={[styles.filterText, { color: colors.text }, selectedType === 'all' && styles.filterTextActive]}>
               Tout
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.filterButton, selectedType === 'sale' && styles.filterButtonActive]}
+            style={[styles.filterButton, { backgroundColor: colors.card, borderColor: colors.border }, selectedType === 'sale' && styles.filterButtonActive]}
             onPress={() => setSelectedType('sale')}
           >
-            <Text style={[styles.filterText, selectedType === 'sale' && styles.filterTextActive]}>
+            <Text style={[styles.filterText, { color: colors.text }, selectedType === 'sale' && styles.filterTextActive]}>
               À vendre
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.filterButton, selectedType === 'rent' && styles.filterButtonActive]}
+            style={[styles.filterButton, { backgroundColor: colors.card, borderColor: colors.border }, selectedType === 'rent' && styles.filterButtonActive]}
             onPress={() => setSelectedType('rent')}
           >
-            <Text style={[styles.filterText, selectedType === 'rent' && styles.filterTextActive]}>
+            <Text style={[styles.filterText, { color: colors.text }, selectedType === 'rent' && styles.filterTextActive]}>
               À louer
             </Text>
           </TouchableOpacity>
@@ -218,7 +226,7 @@ const HomeScreen = ({ navigation }: any) => {
         {featuredProperties.length > 0 && (
           <>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Propriétés en vedette</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Propriétés en vedette</Text>
               <TouchableOpacity>
                 <Text style={styles.seeAll}>Voir tout</Text>
               </TouchableOpacity>
@@ -249,7 +257,7 @@ const HomeScreen = ({ navigation }: any) => {
           ))}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -259,9 +267,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: SIZES.padding,
+    paddingTop: SPACING.lg,
+    paddingBottom: SPACING.xl,
+    paddingHorizontal: SPACING.lg,
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
   },
@@ -311,13 +319,13 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     flexDirection: 'row',
-    paddingHorizontal: SIZES.padding,
-    paddingVertical: 20,
-    gap: 12,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.xl,
+    gap: SPACING.md,
   },
   filterButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.sm + 2,
     borderRadius: 20,
     backgroundColor: COLORS.white,
     ...SHADOWS.small,

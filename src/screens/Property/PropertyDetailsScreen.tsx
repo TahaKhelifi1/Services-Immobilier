@@ -10,9 +10,11 @@ import {
   Share,
   Platform,
   Alert,
+  StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SIZES, SHADOWS } from '../../constants/theme';
+import { COLORS, SIZES, SHADOWS, SPACING } from '../../constants/theme';
 import { Property } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { useFavorites } from '../../hooks/useProperties';
@@ -66,7 +68,9 @@ const PropertyDetailsScreen = ({ route, navigation }: any) => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.containerSafe} edges={['bottom']}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <View style={styles.container}>
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -285,11 +289,16 @@ const PropertyDetailsScreen = ({ route, navigation }: any) => {
           <Text style={styles.messageBottomButtonText}>Message</Text>
         </TouchableOpacity>
       </View>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  containerSafe: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
@@ -321,8 +330,8 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 50,
-    left: 16,
+    top: Platform.OS === 'ios' ? SIZES.statusBarHeight + 10 : SPACING.xxxl,
+    left: SPACING.lg,
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -332,10 +341,10 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     position: 'absolute',
-    top: 50,
-    right: 16,
+    top: Platform.OS === 'ios' ? SIZES.statusBarHeight + 10 : SPACING.xxxl,
+    right: SPACING.lg,
     flexDirection: 'row',
-    gap: 12,
+    gap: SPACING.md,
   },
   actionButton: {
     width: 40,
@@ -494,11 +503,13 @@ const styles = StyleSheet.create({
   },
   bottomBar: {
     flexDirection: 'row',
-    padding: SIZES.padding,
+    padding: SPACING.lg,
+    paddingBottom: Platform.OS === 'ios' ? SIZES.bottomSpace + SPACING.lg : SPACING.lg,
     backgroundColor: COLORS.white,
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
-    gap: 12,
+    gap: SPACING.md,
+    ...SHADOWS.large,
   },
   callButton: {
     flex: 1,

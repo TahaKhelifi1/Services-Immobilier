@@ -9,9 +9,14 @@ import {
   FlatList,
   Image,
   ActivityIndicator,
+  Platform,
+  StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SIZES, SHADOWS } from '../../constants/theme';
+import { COLORS, SIZES, SHADOWS, SPACING } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
+import { getColors } from '../../constants/colors';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { Property } from '../../types';
@@ -19,6 +24,8 @@ import { useAuth } from '../../hooks/useAuth';
 import { useFavorites } from '../../hooks/useProperties';
 
 const SearchScreen = ({ navigation, route }: any) => {
+  const { isDarkMode } = useTheme();
+  const colors = getColors(isDarkMode);
   const { user } = useAuth();
   const { toggleFavorite, isFavorite } = useFavorites(user?.uid || '');
   const [searchQuery, setSearchQuery] = useState(route.params?.initialQuery || '');
@@ -146,7 +153,7 @@ const SearchScreen = ({ navigation, route }: any) => {
 
   const renderPropertyCard = ({ item }: { item: Property }) => (
     <TouchableOpacity
-      style={styles.resultCard}
+      style={[styles.resultCard, { backgroundColor: colors.card }]}
       onPress={() => navigation.navigate('PropertyDetails', { id: item.id })}
     >
       <Image
@@ -164,78 +171,79 @@ const SearchScreen = ({ navigation, route }: any) => {
         />
       </TouchableOpacity>
       <View style={styles.resultInfo}>
-        <Text style={styles.resultTitle} numberOfLines={1}>{item.title}</Text>
+        <Text style={[styles.resultTitle, { color: colors.text }]} numberOfLines={1}>{item.title}</Text>
         <View style={styles.locationRow}>
-          <Ionicons name="location-outline" size={14} color={COLORS.textLight} />
-          <Text style={styles.locationText} numberOfLines={1}>{item.location?.city}</Text>
+          <Ionicons name="location-outline" size={14} color={colors.textLight} />
+          <Text style={[styles.locationText, { color: colors.textLight }]} numberOfLines={1}>{item.location?.city}</Text>
         </View>
         <View style={styles.resultDetails}>
           <View style={styles.detailItem}>
             <Ionicons name="bed-outline" size={16} color={COLORS.primary} />
-            <Text style={styles.detailText}>{item.bedrooms}</Text>
+            <Text style={[styles.detailText, { color: colors.text }]}>{item.bedrooms}</Text>
           </View>
           <View style={styles.detailItem}>
             <Ionicons name="water-outline" size={16} color={COLORS.primary} />
-            <Text style={styles.detailText}>{item.bathrooms}</Text>
+            <Text style={[styles.detailText, { color: colors.text }]}>{item.bathrooms}</Text>
           </View>
           <View style={styles.detailItem}>
             <Ionicons name="expand-outline" size={16} color={COLORS.primary} />
-            <Text style={styles.detailText}>{item.area}m²</Text>
+            <Text style={[styles.detailText, { color: colors.text }]}>{item.area}m²</Text>
           </View>
         </View>
-        <Text style={styles.resultPrice}>{item.price?.toLocaleString()} DH</Text>
+        <Text style={[styles.resultPrice, { color: COLORS.primary }]}>{item.price?.toLocaleString()} DH</Text>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.background} />
+      <View style={[styles.header, { backgroundColor: colors.card }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Recherche avancée</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Recherche avancée</Text>
         <TouchableOpacity onPress={handleReset}>
-          <Text style={styles.resetText}>Reset</Text>
+          <Text style={[styles.resetText, { color: COLORS.primary }]}>Reset</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.searchContainer}>
-          <Ionicons name="search-outline" size={20} color={COLORS.textLight} style={styles.searchIcon} />
+        <View style={[styles.searchContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Ionicons name="search-outline" size={20} color={colors.textLight} style={styles.searchIcon} />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Ville, quartier ou code postal..."
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholderTextColor={COLORS.textLight}
+            placeholderTextColor={colors.textLight}
           />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Type de transaction</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Type de transaction</Text>
           <View style={styles.typeContainer}>
             <TouchableOpacity
-              style={[styles.typeButton, selectedType === 'all' && styles.typeButtonActive]}
+              style={[styles.typeButton, { backgroundColor: colors.card, borderColor: colors.border }, selectedType === 'all' && styles.typeButtonActive]}
               onPress={() => setSelectedType('all')}
             >
-              <Text style={[styles.typeText, selectedType === 'all' && styles.typeTextActive]}>
+              <Text style={[styles.typeText, { color: colors.text }, selectedType === 'all' && styles.typeTextActive]}>
                 Tout
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.typeButton, selectedType === 'sale' && styles.typeButtonActive]}
+              style={[styles.typeButton, { backgroundColor: colors.card, borderColor: colors.border }, selectedType === 'sale' && styles.typeButtonActive]}
               onPress={() => setSelectedType('sale')}
             >
-              <Text style={[styles.typeText, selectedType === 'sale' && styles.typeTextActive]}>
+              <Text style={[styles.typeText, { color: colors.text }, selectedType === 'sale' && styles.typeTextActive]}>
                 Vente
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.typeButton, selectedType === 'rent' && styles.typeButtonActive]}
+              style={[styles.typeButton, { backgroundColor: colors.card, borderColor: colors.border }, selectedType === 'rent' && styles.typeButtonActive]}
               onPress={() => setSelectedType('rent')}
             >
-              <Text style={[styles.typeText, selectedType === 'rent' && styles.typeTextActive]}>
+              <Text style={[styles.typeText, { color: colors.text }, selectedType === 'rent' && styles.typeTextActive]}>
                 Location
               </Text>
             </TouchableOpacity>
@@ -243,13 +251,14 @@ const SearchScreen = ({ navigation, route }: any) => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Type de propriété</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Type de propriété</Text>
           <View style={styles.propertyTypeContainer}>
             {propertyTypes.map((type) => (
               <TouchableOpacity
                 key={type}
                 style={[
                   styles.propertyTypeChip,
+                  { backgroundColor: colors.card, borderColor: colors.border },
                   selectedPropertyType === type.toLowerCase() && styles.propertyTypeChipActive
                 ]}
                 onPress={() => setSelectedPropertyType(type.toLowerCase())}
@@ -257,6 +266,7 @@ const SearchScreen = ({ navigation, route }: any) => {
                 <Text
                   style={[
                     styles.propertyTypeText,
+                    { color: colors.text },
                     selectedPropertyType === type.toLowerCase() && styles.propertyTypeTextActive
                   ]}
                 >
@@ -268,42 +278,42 @@ const SearchScreen = ({ navigation, route }: any) => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Fourchette de prix (€)</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Fourchette de prix (€)</Text>
           <View style={styles.priceRow}>
-            <View style={styles.priceInput}>
+            <View style={[styles.priceInput, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Min"
                 value={priceRange.min}
                 onChangeText={(text) => setPriceRange({ ...priceRange, min: text })}
                 keyboardType="numeric"
-                placeholderTextColor={COLORS.textLight}
+                placeholderTextColor={colors.textLight}
               />
             </View>
-            <Text style={styles.priceSeparator}>-</Text>
-            <View style={styles.priceInput}>
+            <Text style={[styles.priceSeparator, { color: colors.text }]}>-</Text>
+            <View style={[styles.priceInput, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Max"
                 value={priceRange.max}
                 onChangeText={(text) => setPriceRange({ ...priceRange, max: text })}
                 keyboardType="numeric"
-                placeholderTextColor={COLORS.textLight}
+                placeholderTextColor={colors.textLight}
               />
             </View>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Chambres</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Chambres</Text>
           <View style={styles.optionsRow}>
             {bedroomOptions.map((num) => (
               <TouchableOpacity
                 key={num}
-                style={[styles.optionButton, bedrooms === num && styles.optionButtonActive]}
+                style={[styles.optionButton, { backgroundColor: colors.card, borderColor: colors.border }, bedrooms === num && styles.optionButtonActive]}
                 onPress={() => setBedrooms(bedrooms === num ? null : num)}
               >
-                <Text style={[styles.optionText, bedrooms === num && styles.optionTextActive]}>
+                <Text style={[styles.optionText, { color: colors.text }, bedrooms === num && styles.optionTextActive]}>
                   {num}+
                 </Text>
               </TouchableOpacity>
@@ -312,15 +322,15 @@ const SearchScreen = ({ navigation, route }: any) => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Salles de bain</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Salles de bain</Text>
           <View style={styles.optionsRow}>
             {[1, 2, 3, 4].map((num) => (
               <TouchableOpacity
                 key={num}
-                style={[styles.optionButton, bathrooms === num && styles.optionButtonActive]}
+                style={[styles.optionButton, { backgroundColor: colors.card, borderColor: colors.border }, bathrooms === num && styles.optionButtonActive]}
                 onPress={() => setBathrooms(bathrooms === num ? null : num)}
               >
-                <Text style={[styles.optionText, bathrooms === num && styles.optionTextActive]}>
+                <Text style={[styles.optionText, { color: colors.text }, bathrooms === num && styles.optionTextActive]}>
                   {num}+
                 </Text>
               </TouchableOpacity>
@@ -329,19 +339,21 @@ const SearchScreen = ({ navigation, route }: any) => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Amenities</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Amenities</Text>
           <View style={styles.amenitiesContainer}>
             {amenitiesList.map((amenity) => (
               <TouchableOpacity 
                 key={amenity} 
                 style={[
                   styles.amenityChip,
+                  { backgroundColor: colors.card, borderColor: colors.border },
                   selectedAmenities.includes(amenity) && styles.amenityChipActive
                 ]}
                 onPress={() => toggleAmenity(amenity)}
               >
                 <Text style={[
                   styles.amenityText,
+                  { color: colors.text },
                   selectedAmenities.includes(amenity) && styles.amenityTextActive
                 ]}>{amenity}</Text>
               </TouchableOpacity>
@@ -351,7 +363,7 @@ const SearchScreen = ({ navigation, route }: any) => {
 
         {searched && (
           <View style={styles.resultsSection}>
-            <Text style={styles.resultsTitle}>
+            <Text style={[styles.resultsTitle, { color: colors.text }]}>
               {searchResults.length} {searchResults.length === 1 ? 'result' : 'results'}
             </Text>
             {loading ? (
@@ -365,16 +377,16 @@ const SearchScreen = ({ navigation, route }: any) => {
               />
             ) : (
               <View style={styles.emptyResults}>
-                <Ionicons name="search-outline" size={64} color={COLORS.textLight} />
-                <Text style={styles.emptyText}>No properties found</Text>
-                <Text style={styles.emptySubtext}>Try adjusting your filters</Text>
+                <Ionicons name="search-outline" size={64} color={colors.textLight} />
+                <Text style={[styles.emptyText, { color: colors.text }]}>No properties found</Text>
+                <Text style={[styles.emptySubtext, { color: colors.textLight }]}>Try adjusting your filters</Text>
               </View>
             )}
           </View>
         )}
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
         <TouchableOpacity 
           style={styles.searchButton}
           onPress={handleSearch}
@@ -390,7 +402,7 @@ const SearchScreen = ({ navigation, route }: any) => {
           )}
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -403,9 +415,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SIZES.padding,
-    paddingTop: 50,
-    paddingBottom: 16,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.lg,
     backgroundColor: COLORS.white,
     ...SHADOWS.small,
   },
@@ -567,7 +578,8 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   footer: {
-    padding: SIZES.padding,
+    padding: SPACING.lg,
+    paddingBottom: Platform.OS === 'ios' ? SIZES.bottomSpace + SPACING.lg : SPACING.lg,
     backgroundColor: COLORS.white,
     ...SHADOWS.medium,
   },
@@ -576,9 +588,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: Platform.OS === 'ios' ? 16 : 14,
     borderRadius: SIZES.radius,
-    gap: 8,
+    minHeight: 50,
+    gap: SPACING.sm,
   },
   searchButtonText: {
     color: COLORS.white,

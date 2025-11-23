@@ -77,18 +77,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.lightGray,
+    backgroundColor: COLORS.background,
     padding: 20,
   },
   webFallbackText: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.darkGray,
+    color: COLORS.text,
     marginBottom: 8,
   },
   webFallbackSubtext: {
     fontSize: 14,
-    color: COLORS.gray,
+    color: COLORS.textLight,
     textAlign: 'center',
   },
   backButton: {

@@ -7,16 +7,23 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  Platform,
+  StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
+import { getColors } from '../../constants/colors';
 import { getUserProperties } from '../../services/firebase.service';
 import { getFavorites } from '../../services/firebase.service';
-import { COLORS, SIZES, SHADOWS } from '../../constants/theme';
+import { COLORS, SIZES, SHADOWS, SPACING } from '../../constants/theme';
 
 
 const ProfileScreen = ({ navigation }: any) => {
   const { user, logout, refreshUser } = useAuth();
+  const { isDarkMode } = useTheme();
+  const colors = getColors(isDarkMode);
   const [propertiesCount, setPropertiesCount] = useState(0);
   const [favoritesCount, setFavoritesCount] = useState(0);
 
@@ -88,34 +95,35 @@ const ProfileScreen = ({ navigation }: any) => {
   ];
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profil</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.background} />
+      <View style={[styles.header, { backgroundColor: colors.card }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Profil</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.profileSection}>
+        <View style={[styles.profileSection, { backgroundColor: colors.card }]}>
           <Image
             source={{ uri: user?.photoURL || 'https://via.placeholder.com/100' }}
             style={styles.avatar}
           />
-          <Text style={styles.name}>{user?.displayName || 'Utilisateur'}</Text>
-          <Text style={styles.email}>{user?.email}</Text>
+          <Text style={[styles.name, { color: colors.text }]}>{user?.displayName || 'Utilisateur'}</Text>
+          <Text style={[styles.email, { color: colors.textLight }]}>{user?.email}</Text>
           
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{propertiesCount}</Text>
-              <Text style={styles.statLabel}>Annonces</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>{propertiesCount}</Text>
+              <Text style={[styles.statLabel, { color: colors.textLight }]}>Annonces</Text>
             </View>
-            <View style={styles.statDivider} />
+            <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{favoritesCount}</Text>
-              <Text style={styles.statLabel}>Favoris</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>{favoritesCount}</Text>
+              <Text style={[styles.statLabel, { color: colors.textLight }]}>Favoris</Text>
             </View>
-            <View style={styles.statDivider} />
+            <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>0</Text>
-              <Text style={styles.statLabel}>Messages</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>0</Text>
+              <Text style={[styles.statLabel, { color: colors.textLight }]}>Messages</Text>
             </View>
           </View>
         </View>
@@ -124,26 +132,26 @@ const ProfileScreen = ({ navigation }: any) => {
           {menuItems.map((item, index) => (
             <TouchableOpacity
               key={index}
-              style={styles.menuItem}
+              style={[styles.menuItem, { backgroundColor: colors.card, borderBottomColor: colors.border }]}
               onPress={item.onPress}
             >
               <View style={styles.menuItemLeft}>
-                <View style={styles.iconContainer}>
+                <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
                   <Ionicons name={item.icon as any} size={24} color={COLORS.primary} />
                 </View>
-                <Text style={styles.menuItemText}>{item.title}</Text>
+                <Text style={[styles.menuItemText, { color: colors.text }]}>{item.title}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={24} color={COLORS.textLight} />
+              <Ionicons name="chevron-forward" size={24} color={colors.textLight} />
             </TouchableOpacity>
           ))}
         </View>
 
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <TouchableOpacity style={[styles.logoutButton, { backgroundColor: colors.card, borderColor: colors.border }]} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={24} color={COLORS.accent} />
-          <Text style={styles.logoutText}>Déconnexion</Text>
+          <Text style={[styles.logoutText, { color: COLORS.accent }]}>Déconnexion</Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -153,9 +161,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
-    paddingTop: 50,
-    paddingBottom: 16,
-    paddingHorizontal: SIZES.padding,
+    paddingVertical: SPACING.lg,
+    paddingHorizontal: SPACING.lg,
     backgroundColor: COLORS.white,
     ...SHADOWS.small,
   },
@@ -219,13 +226,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: SIZES.padding,
+    padding: SPACING.lg,
+    minHeight: 60,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
   menuItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   iconContainer: {
     width: 40,
@@ -234,7 +243,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: SPACING.md,
   },
   menuItemText: {
     fontSize: 16,

@@ -9,7 +9,10 @@ import {
   Image,
   Alert,
   ActivityIndicator,
+  Platform,
+  StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
@@ -18,7 +21,7 @@ import { db } from '../../config/firebase';
 import { useAuth } from '../../context/AuthContext';
 import { uploadImageToCloudinary } from '../../services/cloudinary.service';
 import { updateProperty } from '../../services/firebase.service';
-import { COLORS, SIZES, SHADOWS } from '../../constants/theme';
+import { COLORS, SIZES, SHADOWS, SPACING } from '../../constants/theme';
 import { Property } from '../../types';
 
 const AddPropertyScreen = ({ navigation, route }: any) => {
@@ -217,7 +220,8 @@ const AddPropertyScreen = ({ navigation, route }: any) => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.white} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color={COLORS.text} />
@@ -399,7 +403,7 @@ const AddPropertyScreen = ({ navigation, route }: any) => {
 
         <View style={{ height: 40 }} />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -412,9 +416,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 50,
-    paddingBottom: 16,
-    paddingHorizontal: SIZES.padding,
+    paddingVertical: SPACING.lg,
+    paddingHorizontal: SPACING.lg,
     backgroundColor: COLORS.white,
     ...SHADOWS.small,
   },
@@ -496,11 +499,12 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: COLORS.white,
     borderRadius: SIZES.radius,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: Platform.OS === 'ios' ? 15 : 12,
     fontSize: 16,
     color: COLORS.text,
-    marginBottom: 12,
+    marginBottom: SPACING.md,
+    minHeight: 50,
     ...SHADOWS.small,
   },
   textArea: {
