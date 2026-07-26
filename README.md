@@ -7,6 +7,24 @@ Application mobile cross-platform développée avec React Native et Expo pour la
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)
 ![Firebase](https://img.shields.io/badge/Firebase-11.0.0-orange)
 
+## 📱 Aperçu de l'Application
+
+<div align="center">
+
+| 🔐 **Connexion** | 📝 **Inscription** | 🏠 **Accueil & Propriétés** |
+| :---: | :---: | :---: |
+| <img src="assets/screenshots/login.jpg" width="220" alt="Écran de Connexion" /> | <img src="assets/screenshots/register.jpg" width="220" alt="Écran d'Inscription" /> | <img src="assets/screenshots/home.jpg" width="220" alt="Écran d'Accueil" /> |
+
+<br/>
+
+| 🔍 **Recherche Avancée** | 👤 **Profil Utilisateur** |
+| :---: | :---: |
+| <img src="assets/screenshots/search.jpg" width="220" alt="Recherche Avancée" /> | <img src="assets/screenshots/profile.jpg" width="220" alt="Profil Utilisateur" /> |
+
+</div>
+
+---
+
 ## ✨ Fonctionnalités
 
 ### 🔐 Authentification
